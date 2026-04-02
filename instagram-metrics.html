@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram Metrics Pro</title>
+
+<!-- Chart.js para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<!-- jsPDF para exportar PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* =============================================
+   VARIÁVEIS E RESET GLOBAL
+   ============================================= */
+:root {
+  --bg-main: #0a0a0f;
+  --bg-card: #13131a;
+  --bg-card2: #1a1a24;
+  --bg-input: #0f0f17;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.15);
+
+  /* Gradiente Instagram */
+  --ig-1: #f09433;
+  --ig-2: #e6683c;
+  --ig-3: #dc2743;
+  --ig-4: #cc2366;
+  --ig-5: #bc1888;
+  --ig-grad: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  --ig-grad-soft: linear-gradient(135deg, rgba(240,148,51,0.15), rgba(188,24,136,0.15));
+
+  --accent: #e8536a;
+  --accent-gold: #f0a033;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --blue: #3498db;
+  --purple: #9b59b6;
+
+  --text-primary: #f0f0f5;
+  --text-secondary: #8888aa;
+  --text-muted: #555577;
+
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background decorativo */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(188,24,136,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -200px;
+  left: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(240,148,51,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* =============================================
+   LAYOUT PRINCIPAL
+   ============================================= */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* =============================================
+   HEADER
+   ============================================= */
+.header {
+  padding: 40px 0 48px;
+  text-align: center;
+  position: relative;
+}
+
+.header-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--ig-grad);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 20px rgba(188,24,136,0.4);
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--ig-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.header h1 span {
+  background: var(--ig-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  color: var(--text-secondary);
+  font-size: 16px;
+  max-width: 500px;
+  margin: 0 auto 32px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* =============================================
+   BOTÕES
+   ============================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--ig-grad);
+  color: white;
+  box-shadow: 0 4px 20px rgba(188,24,136,0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(188,24,136,0.5);
+}
+
+.btn-secondary {
+  background: var(--bg-card2);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.btn-generate {
+  width: 100%;
+  padding: 20px 32px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  border-radius: var(--radius);
+  background: var(--ig-grad);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 30px rgba(188,24,136,0.4);
+  position: relative;
+  overflow: hidden;
+}
+.btn-generate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.btn-generate:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(188,24,136,0.55);
+}
+.btn-generate:hover::before { opacity: 1; }
+.btn-generate:active { transform: translateY(0); }
+
+/* =============================================
+   CARDS
+   ============================================= */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border-hover); }
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title .badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--ig-grad-soft);
+  color: var(--accent);
+  border: 1px solid rgba(232,83,106,0.2);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+/* Dot colorido no título */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* =============================================
+   FORMULÁRIO
+   ============================================= */
+.form-section {
+  margin-bottom: 32px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="month"] {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  width: 100%;
+  transition: all 0.2s;
+  outline: none;
+  -moz-appearance: textfield;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+input:focus {
+  border-color: rgba(188,24,136,0.5);
+  background: rgba(188,24,136,0.05);
+  box-shadow: 0 0 0 3px rgba(188,24,136,0.1);
+}
+
+input::placeholder { color: var(--text-muted); }
+
+/* =============================================
+   GRID DE SEÇÕES
+   ============================================= */
+.sections-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .sections-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .sections-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* =============================================
+   CARDS DE MÉTRICAS (RESULTADOS)
+   ============================================= */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ig-grad);
+}
+
+.metric-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.metric-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.metric-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+  background: var(--ig-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-change {
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.metric-change.up {
+  color: var(--green);
+  background: rgba(46,204,113,0.1);
+}
+
+.metric-change.down {
+  color: var(--red);
+  background: rgba(231,76,60,0.1);
+}
+
+.metric-change.neutral {
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.05);
+}
+
+/* =============================================
+   COMPARATIVO DE MESES
+   ============================================= */
+.comparison-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.comparison-row:last-child { border-bottom: none; }
+
+.comparison-label {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.comparison-values {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.comparison-arrow {
+  font-size: 16px;
+}
+
+.comparison-pct {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.pct-up { color: var(--green); background: rgba(46,204,113,0.12); }
+.pct-down { color: var(--red); background: rgba(231,76,60,0.12); }
+.pct-neutral { color: var(--text-secondary); background: rgba(255,255,255,0.05); }
+
+/* =============================================
+   GRÁFICOS
+   ============================================= */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (min-width: 768px) {
+  .charts-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 240px;
+}
+
+/* =============================================
+   RELATÓRIO TEXTUAL
+   ============================================= */
+.report-section {
+  margin-bottom: 32px;
+}
+
+.report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.report-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.report-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.report-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  line-height: 1.8;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+
+.report-content h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 24px 0 12px;
+  background: var(--ig-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.report-content h2:first-child { margin-top: 0; }
+
+.report-content p { margin-bottom: 12px; }
+
+.report-content ul {
+  margin: 8px 0 16px 20px;
+}
+
+.report-content ul li {
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+
+.report-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+/* =============================================
+   TABS PARA MÊS ATUAL / ANTERIOR
+   ============================================= */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.tab.active {
+  background: var(--bg-card2);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* =============================================
+   TOAST / NOTIFICAÇÕES
+   ============================================= */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 340px;
+}
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+.toast.success { border-color: rgba(46,204,113,0.3); }
+.toast.error { border-color: rgba(231,76,60,0.3); }
+
+/* =============================================
+   SEÇÃO OCULTA (aparece após gerar relatório)
+   ============================================= */
+.hidden { display: none !important; }
+.results-section { display: none; }
+.results-section.visible { display: block; }
+
+/* =============================================
+   DIVISOR
+   ============================================= */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 32px 0;
+}
+
+/* =============================================
+   LOADING
+   ============================================= */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.loading-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-right-color: var(--accent-gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loader-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+/* =============================================
+   SCROLL SUAVE E RESPONSIVIDADE
+   ============================================= */
+@media (max-width: 600px) {
+  .container { padding: 0 16px 60px; }
+  .card { padding: 20px; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .report-content { padding: 20px; font-size: 14px; }
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+.footer {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+  margin-top: 48px;
+}
+
+.footer span {
+  background: var(--ig-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader"></div>
+  <div class="loader-text">Gerando seu relatório...</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✓</span>
+  <span id="toastMsg">Ação realizada com sucesso!</span>
+</div>
+
+<div class="container">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="logo-icon">📊</div>
+      <div class="logo-text">MetricsIG</div>
+    </div>
+    <h1>Relatório de Métricas<br><span>Instagram</span></h1>
+    <p>Preencha os dados do mês e gere um relatório completo e profissional em segundos</p>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="loadFromStorage()">⬆ Carregar dados salvos</button>
+      <button class="btn btn-ghost" onclick="clearAll()">🗑 Limpar tudo</button>
+    </div>
+  </header>
+
+  <!-- ==================== FORMULÁRIO ==================== -->
+  <div id="formSection">
+
+    <!-- Campo de identificação -->
+    <div class="card form-section">
+      <div class="card-title">
+        <span class="dot" style="background: var(--ig-grad); background: linear-gradient(45deg,#f09433,#bc1888);"></span>
+        Identificação do Relatório
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nome do perfil / cliente</label>
+          <input type="text" id="profileName" placeholder="@seuperfil" />
+        </div>
+        <div class="form-group">
+          <label>Mês de referência</label>
+          <input type="month" id="refMonth" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Abas: Mês Atual / Mês Anterior -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('current')">📅 Mês Atual</button>
+      <button class="tab" onclick="switchTab('previous')">📆 Mês Anterior <small style="opacity:.6">(comparativo)</small></button>
+    </div>
+
+    <!-- Tab Mês Atual -->
+    <div class="tab-content active" id="tab-current">
+
+      <!-- Dados do Perfil -->
+      <div class="sections-grid cols-3">
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background:#bc1888;"></span>
+            Dados do Perfil
+          </div>
+          <div class="form-grid" style="grid-template-columns:1fr;">
+            <div class="form-group">
+              <label>Seguidores início do mês</label>
+              <input type="number" id="followersStart" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Seguidores fim do mês</label>
+              <input type="number" id="followersEnd" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Contas alcançadas</label>
+              <input type="number" id="accountsReached" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Contas engajadas</label>
+              <input type="number" id="accountsEngaged" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Visitas ao perfil</label>
+              <input type="number" id="profileVisits" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Cliques no link da bio</label>
+              <input type="number" id="bioClicks" placeholder="0" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Produção de Conteúdo -->
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background:#e6683c;"></span>
+            Produção de Conteúdo
+          </div>
+          <div class="form-grid" style="grid-template-columns:1fr;">
+            <div class="form-group">
+              <label>Posts no feed</label>
+              <input type="number" id="feedPosts" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Reels publicados</label>
+              <input type="number" id="reels" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Stories publicados</label>
+              <input type="number" id="stories" placeholder="0" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Engajamento e Reels -->
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background:#f09433;"></span>
+            Engajamento e Reels
+          </div>
+          <div class="form-grid" style="grid-template-columns:1fr;">
+            <div class="form-group">
+              <label>Curtidas</label>
+              <input type="number" id="likes" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Comentários</label>
+              <input type="number" id="comments" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Compartilhamentos</label>
+              <input type="number" id="shares" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Salvamentos</label>
+              <input type="number" id="saves" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>Visualizações de Reels</label>
+              <input type="number" id="reelsViews" placeholder="0" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab Mês Anterior -->
+    <div class="tab-content" id="tab-previous">
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-title">
+          <span class="dot" style="background:var(--text-muted);"></span>
+          Dados do Mês Anterior
+          <span class="badge">Opcional — para análise comparativa</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Seguidores (início)</label>
+            <input type="number" id="p_followersStart" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Seguidores (fim)</label>
+            <input type="number" id="p_followersEnd" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Contas alcançadas</label>
+            <input type="number" id="p_accountsReached" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Contas engajadas</label>
+            <input type="number" id="p_accountsEngaged" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Curtidas</label>
+            <input type="number" id="p_likes" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Comentários</label>
+            <input type="number" id="p_comments" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Compartilhamentos</label>
+            <input type="number" id="p_shares" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Salvamentos</label>
+            <input type="number" id="p_saves" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Visualizações de Reels</label>
+            <input type="number" id="p_reelsViews" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Visitas ao perfil</label>
+            <input type="number" id="p_profileVisits" placeholder="0" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão Gerar Relatório -->
+    <button class="btn-generate" onclick="generateReport()">
+      ✨ Gerar Relatório Completo
+    </button>
+
+  </div><!-- /formSection -->
+
+  <!-- ==================== SEÇÃO DE RESULTADOS ==================== -->
+  <div class="results-section" id="resultsSection">
+
+    <div class="divider"></div>
+
+    <!-- Cards de métricas calculadas -->
+    <div class="card-title" style="margin-bottom:16px; font-family:var(--font-display); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-secondary);">
+      📈 Métricas Calculadas
+    </div>
+    <div class="metrics-grid" id="metricsGrid"></div>
+
+    <!-- Comparativo de meses -->
+    <div class="card" id="comparisonCard" style="margin-bottom:24px; display:none;">
+      <div class="card-title">
+        <span class="dot" style="background:var(--blue);"></span>
+        Comparativo: Mês Atual × Mês Anterior
+      </div>
+      <div id="comparisonRows"></div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="charts-grid" id="chartsGrid">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#bc1888;"></span>Crescimento de Seguidores</div>
+        <div class="chart-wrapper"><canvas id="chartFollowers"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#e6683c;"></span>Alcance vs Engajamento</div>
+        <div class="chart-wrapper"><canvas id="chartReach"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#f09433;"></span>Distribuição de Conteúdo</div>
+        <div class="chart-wrapper"><canvas id="chartContent"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#dc2743;"></span>Composição das Interações</div>
+        <div class="chart-wrapper"><canvas id="chartInteractions"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Relatório textual -->
+    <div class="report-section">
+      <div class="report-header">
+        <div class="report-title">📋 Relatório Profissional</div>
+        <div class="report-actions">
+          <button class="btn btn-ghost" onclick="copyReport()">📋 Copiar texto</button>
+          <button class="btn btn-secondary" onclick="exportCSV()">📊 Baixar CSV</button>
+          <button class="btn btn-primary" onclick="exportPDF()">⬇ Baixar PDF</button>
+        </div>
+      </div>
+      <div class="report-content" id="reportContent"></div>
+    </div>
+
+    <!-- Botão de nova análise -->
+    <button class="btn btn-secondary" style="width:100%; margin-top:8px;" onclick="scrollToForm()">
+      ← Editar dados / Nova análise
+    </button>
+
+  </div><!-- /resultsSection -->
+
+</div><!-- /container -->
+
+<footer class="footer">
+  <span>MetricsIG</span> — Relatórios profissionais de Instagram · Funciona 100% offline
+</footer>
+
+<script>
+// =============================================
+//   ESTADO GLOBAL E INICIALIZAÇÃO
+// =============================================
+
+let charts = {}; // referências para destruir gráficos antes de recriar
+
+// Inicializa o mês atual nos campos de referência
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  document.getElementById('refMonth').value = `${yyyy}-${mm}`;
+});
+
+// =============================================
+//   TABS
+// =============================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'current') || (i === 1 && tab === 'previous'));
+  });
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+// =============================================
+//   COLETA DE DADOS DO FORMULÁRIO
+// =============================================
+function getVal(id) {
+  const v = parseFloat(document.getElementById(id)?.value) || 0;
+  return v;
+}
+function getStr(id) {
+  return document.getElementById(id)?.value?.trim() || '';
+}
+
+function collectData() {
+  return {
+    // Identificação
+    profileName: getStr('profileName') || '@perfil',
+    refMonth: getStr('refMonth'),
+
+    // Mês atual
+    followersStart: getVal('followersStart'),
+    followersEnd: getVal('followersEnd'),
+    accountsReached: getVal('accountsReached'),
+    accountsEngaged: getVal('accountsEngaged'),
+    profileVisits: getVal('profileVisits'),
+    bioClicks: getVal('bioClicks'),
+    feedPosts: getVal('feedPosts'),
+    reels: getVal('reels'),
+    stories: getVal('stories'),
+    likes: getVal('likes'),
+    comments: getVal('comments'),
+    shares: getVal('shares'),
+    saves: getVal('saves'),
+    reelsViews: getVal('reelsViews'),
+
+    // Mês anterior
+    p_followersStart: getVal('p_followersStart'),
+    p_followersEnd: getVal('p_followersEnd'),
+    p_accountsReached: getVal('p_accountsReached'),
+    p_accountsEngaged: getVal('p_accountsEngaged'),
+    p_likes: getVal('p_likes'),
+    p_comments: getVal('p_comments'),
+    p_shares: getVal('p_shares'),
+    p_saves: getVal('p_saves'),
+    p_reelsViews: getVal('p_reelsViews'),
+    p_profileVisits: getVal('p_profileVisits'),
+  };
+}
+
+// =============================================
+//   CÁLCULOS
+// =============================================
+function calculate(d) {
+  const totalContent = d.feedPosts + d.reels + d.stories;
+  const totalInteractions = d.likes + d.comments + d.shares + d.saves;
+  const followerGrowth = d.followersEnd - d.followersStart;
+  const growthRate = d.followersStart > 0 ? (followerGrowth / d.followersStart * 100) : 0;
+  const engagementRate = d.followersEnd > 0 ? (totalInteractions / d.followersEnd * 100) : 0;
+  const avgInteractionsPerPost = totalContent > 0 ? (totalInteractions / totalContent) : 0;
+  const avgReachPerContent = totalContent > 0 ? (d.accountsReached / totalContent) : 0;
+  const engagementReachRate = d.accountsReached > 0 ? (d.accountsEngaged / d.accountsReached * 100) : 0;
+  const bioClickRate = d.profileVisits > 0 ? (d.bioClicks / d.profileVisits * 100) : 0;
+
+  // Mês anterior
+  const p_totalInteractions = d.p_likes + d.p_comments + d.p_shares + d.p_saves;
+  const p_followerGrowth = d.p_followersEnd - d.p_followersStart;
+  const p_growthRate = d.p_followersStart > 0 ? (p_followerGrowth / d.p_followersStart * 100) : 0;
+  const p_engagementRate = d.p_followersEnd > 0 ? (p_totalInteractions / d.p_followersEnd * 100) : 0;
+
+  return {
+    totalContent, totalInteractions, followerGrowth, growthRate,
+    engagementRate, avgInteractionsPerPost, avgReachPerContent,
+    engagementReachRate, bioClickRate,
+    p_totalInteractions, p_followerGrowth, p_growthRate, p_engagementRate
+  };
+}
+
+// =============================================
+//   UTILITÁRIOS DE FORMATAÇÃO
+// =============================================
+function fmt(n, decimals = 0) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return n.toFixed(decimals).replace('.', ',');
+}
+
+function fmtPct(n) { return n.toFixed(1).replace('.', ',') + '%'; }
+
+function pctChange(current, previous) {
+  if (!previous || previous === 0) return null;
+  return ((current - previous) / previous * 100);
+}
+
+function changeClass(val) {
+  if (val === null) return 'neutral';
+  return val > 0 ? 'up' : val < 0 ? 'down' : 'neutral';
+}
+function changeSymbol(val) {
+  if (val === null || val === 0) return '→';
+  return val > 0 ? '▲' : '▼';
+}
+
+function monthName(ym) {
+  if (!ym) return 'Este mês';
+  const [y, m] = ym.split('-');
+  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return `${months[parseInt(m)-1]} ${y}`;
+}
+
+// =============================================
+//   RENDERIZA CARDS DE MÉTRICAS
+// =============================================
+function renderMetrics(d, c) {
+  const grid = document.getElementById('metricsGrid');
+
+  const items = [
+    { label: 'Crescimento', value: fmt(c.followerGrowth > 0 ? '+' + c.followerGrowth : c.followerGrowth), sub: fmtPct(c.growthRate), dir: c.followerGrowth >= 0 ? 'up' : 'down' },
+    { label: 'Seguidores Atuais', value: fmt(d.followersEnd), sub: 'seguidores', dir: 'neutral' },
+    { label: 'Alcance Total', value: fmt(d.accountsReached), sub: 'contas alcançadas', dir: 'neutral' },
+    { label: 'Taxa de Engajamento', value: fmtPct(c.engagementRate), sub: 'sobre seguidores', dir: c.engagementRate >= 3 ? 'up' : 'down' },
+    { label: 'Total Interações', value: fmt(c.totalInteractions), sub: 'curtidas+coment+comp+salv', dir: 'neutral' },
+    { label: 'Média por Post', value: fmt(c.avgInteractionsPerPost, 0), sub: 'interações/publicação', dir: 'neutral' },
+    { label: 'Alcance Médio', value: fmt(c.avgReachPerContent, 0), sub: 'por conteúdo', dir: 'neutral' },
+    { label: 'Visualizações Reels', value: fmt(d.reelsViews), sub: `em ${d.reels} reels`, dir: 'neutral' },
+    { label: 'Visitas ao Perfil', value: fmt(d.profileVisits), sub: 'visitas no mês', dir: 'neutral' },
+    { label: 'Cliques no Link', value: fmt(d.bioClicks), sub: fmtPct(c.bioClickRate) + ' das visitas', dir: 'neutral' },
+    { label: 'Eng. sobre Alcance', value: fmtPct(c.engagementReachRate), sub: 'contas engajadas/alcançadas', dir: c.engagementReachRate >= 5 ? 'up' : 'down' },
+    { label: 'Conteúdos Publicados', value: fmt(c.totalContent), sub: `${d.feedPosts} feed · ${d.reels} reels · ${d.stories} stories`, dir: 'neutral' },
+  ];
+
+  grid.innerHTML = items.map(item => `
+    <div class="metric-card">
+      <div class="metric-label">${item.label}</div>
+      <div class="metric-value">${item.value}</div>
+      <div class="metric-change ${item.dir}">
+        ${item.dir === 'up' ? '▲' : item.dir === 'down' ? '▼' : '•'} ${item.sub}
+      </div>
+    </div>
+  `).join('');
+}
+
+// =============================================
+//   COMPARATIVO
+// =============================================
+function renderComparison(d, c) {
+  const hasPrev = d.p_followersEnd > 0 || d.p_accountsReached > 0;
+  const card = document.getElementById('comparisonCard');
+  if (!hasPrev) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  const rows = [
+    { label: 'Crescimento de Seguidores', curr: c.followerGrowth, prev: c.p_followerGrowth, type: 'abs' },
+    { label: 'Taxa de Crescimento', curr: c.growthRate, prev: c.p_growthRate, type: 'pct' },
+    { label: 'Contas Alcançadas', curr: d.accountsReached, prev: d.p_accountsReached, type: 'abs' },
+    { label: 'Contas Engajadas', curr: d.accountsEngaged, prev: d.p_accountsEngaged, type: 'abs' },
+    { label: 'Total de Interações', curr: c.totalInteractions, prev: c.p_totalInteractions, type: 'abs' },
+    { label: 'Taxa de Engajamento', curr: c.engagementRate, prev: c.p_engagementRate, type: 'pct' },
+    { label: 'Visualizações de Reels', curr: d.reelsViews, prev: d.p_reelsViews, type: 'abs' },
+    { label: 'Visitas ao Perfil', curr: d.profileVisits, prev: d.p_profileVisits, type: 'abs' },
+  ].filter(r => r.prev > 0);
+
+  const container = document.getElementById('comparisonRows');
+  container.innerHTML = rows.map(r => {
+    const chg = pctChange(r.curr, r.prev);
+    const cls = changeClass(chg);
+    const sym = changeSymbol(chg);
+    const currFmt = r.type === 'pct' ? fmtPct(r.curr) : fmt(r.curr);
+    const prevFmt = r.type === 'pct' ? fmtPct(r.prev) : fmt(r.prev);
+    return `
+      <div class="comparison-row">
+        <div class="comparison-label">${r.label}</div>
+        <div class="comparison-values">
+          <span style="color:var(--text-muted)">${prevFmt}</span>
+          <span class="comparison-arrow">${sym}</span>
+          <span>${currFmt}</span>
+        </div>
+        ${chg !== null ? `<span class="comparison-pct pct-${cls}">${chg > 0 ? '+' : ''}${chg.toFixed(1)}%</span>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// =============================================
+//   GRÁFICOS COM CHART.JS
+// =============================================
+function destroyChart(key) {
+  if (charts[key]) { charts[key].destroy(); delete charts[key]; }
+}
+
+const CHART_DEFAULTS = {
+  color: '#8888aa',
+  font: { family: 'DM Sans', size: 12 },
+};
+
+function renderCharts(d, c) {
+  Chart.defaults.color = '#8888aa';
+  Chart.defaults.font.family = 'DM Sans';
+
+  // Paleta de cores do Instagram
+  const igColors = ['#f09433','#e6683c','#dc2743','#cc2366','#bc1888'];
+  const igColorsAlpha = igColors.map(c => c + '33');
+
+  // --- Gráfico 1: Seguidores ---
+  destroyChart('followers');
+  const ctx1 = document.getElementById('chartFollowers').getContext('2d');
+  charts.followers = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: ['Início do Mês', 'Fim do Mês'],
+      datasets: [{
+        label: 'Seguidores',
+        data: [d.followersStart, d.followersEnd],
+        backgroundColor: [
+          'rgba(240,148,51,0.3)',
+          'rgba(188,24,136,0.5)',
+        ],
+        borderColor: ['#f09433', '#bc1888'],
+        borderWidth: 2,
+        borderRadius: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          ticks: {
+            callback: v => fmt(v),
+          }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // --- Gráfico 2: Alcance vs Engajamento ---
+  destroyChart('reach');
+  const ctx2 = document.getElementById('chartReach').getContext('2d');
+  const hasPrev2 = d.p_accountsReached > 0 || d.p_accountsEngaged > 0;
+  const labels2 = hasPrev2 ? ['Mês Anterior', 'Mês Atual'] : ['Mês Atual'];
+  charts.reach = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: labels2,
+      datasets: [
+        {
+          label: 'Alcance',
+          data: hasPrev2 ? [d.p_accountsReached, d.accountsReached] : [d.accountsReached],
+          backgroundColor: 'rgba(240,148,51,0.4)',
+          borderColor: '#f09433',
+          borderWidth: 2,
+          borderRadius: 8,
+        },
+        {
+          label: 'Engajamento',
+          data: hasPrev2 ? [d.p_accountsEngaged, d.accountsEngaged] : [d.accountsEngaged],
+          backgroundColor: 'rgba(188,24,136,0.4)',
+          borderColor: '#bc1888',
+          borderWidth: 2,
+          borderRadius: 8,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { usePointStyle: true, boxWidth: 8 } } },
+      scales: {
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { callback: v => fmt(v) } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // --- Gráfico 3: Distribuição de conteúdo (Doughnut) ---
+  destroyChart('content');
+  const ctx3 = document.getElementById('chartContent').getContext('2d');
+  charts.content = new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+      labels: ['Feed', 'Reels', 'Stories'],
+      datasets: [{
+        data: [d.feedPosts, d.reels, d.stories],
+        backgroundColor: ['rgba(240,148,51,0.7)', 'rgba(188,24,136,0.7)', 'rgba(220,39,67,0.7)'],
+        borderColor: ['#f09433', '#bc1888', '#dc2743'],
+        borderWidth: 2,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } }
+      }
+    }
+  });
+
+  // --- Gráfico 4: Interações (Polar Area) ---
+  destroyChart('interactions');
+  const ctx4 = document.getElementById('chartInteractions').getContext('2d');
+  charts.interactions = new Chart(ctx4, {
+    type: 'polarArea',
+    data: {
+      labels: ['Curtidas', 'Comentários', 'Compartilhamentos', 'Salvamentos'],
+      datasets: [{
+        data: [d.likes, d.comments, d.shares, d.saves],
+        backgroundColor: [
+          'rgba(240,148,51,0.5)',
+          'rgba(220,39,67,0.5)',
+          'rgba(204,35,102,0.5)',
+          'rgba(188,24,136,0.5)',
+        ],
+        borderColor: ['#f09433', '#dc2743', '#cc2366', '#bc1888'],
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 12 } }
+      },
+      scales: {
+        r: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { display: false } }
+      }
+    }
+  });
+}
+
+// =============================================
+//   GERAÇÃO DO RELATÓRIO TEXTUAL
+// =============================================
+function generateReportText(d, c) {
+  const profile = d.profileName;
+  const month = monthName(d.refMonth);
+  const hasPrev = d.p_followersEnd > 0 || d.p_accountsReached > 0;
+
+  // Análise de engajamento
+  let engAnalysis = '';
+  if (c.engagementRate >= 6) engAnalysis = 'excelente (acima de 6%) — resultado de destaque no mercado';
+  else if (c.engagementRate >= 3) engAnalysis = 'boa (entre 3% e 6%) — dentro da média saudável para Instagram';
+  else if (c.engagementRate >= 1) engAnalysis = 'moderada (entre 1% e 3%) — com espaço para crescimento';
+  else engAnalysis = 'abaixo do ideal (menos de 1%) — requer atenção estratégica imediata';
+
+  // Pontos positivos
+  const positives = [];
+  if (c.followerGrowth > 0) positives.push(`Crescimento positivo de ${fmt(c.followerGrowth)} seguidores (${fmtPct(c.growthRate)})`);
+  if (d.reelsViews > d.followersEnd * 2) positives.push(`Alto alcance via Reels (${fmt(d.reelsViews)} visualizações)`);
+  if (c.engagementRate >= 3) positives.push(`Taxa de engajamento ${c.engagementRate >= 6 ? 'excelente' : 'saudável'} de ${fmtPct(c.engagementRate)}`);
+  if (d.saves > 0) positives.push(`${fmt(d.saves)} salvamentos indicam conteúdo de alto valor percebido`);
+  if (d.shares > 0) positives.push(`${fmt(d.shares)} compartilhamentos ampliam o alcance orgânico`);
+  if (d.bioClicks > 0) positives.push(`${fmt(d.bioClicks)} cliques no link da bio demonstram interesse em conversão`);
+  if (positives.length === 0) positives.push('Manutenção da presença digital e consistência na publicação');
+
+  // Pontos de melhoria
+  const improvements = [];
+  if (c.engagementRate < 3) improvements.push('Aumentar a taxa de engajamento com calls to action (CTAs) mais diretos e conteúdo interativo (enquetes, caixas de perguntas)');
+  if (c.followerGrowth <= 0) improvements.push('Estratégia de aquisição de seguidores: colaborações, hashtags segmentadas e Reels de alto potencial viral');
+  if (d.comments < d.likes * 0.02) improvements.push('Estimular mais comentários com perguntas abertas nas legendas e respostas ativas nos comentários');
+  if (d.reels === 0) improvements.push('Iniciar produção de Reels — formato com maior alcance orgânico no algoritmo atual');
+  if (d.bioClicks === 0 && d.profileVisits > 0) improvements.push('Otimizar o link da bio com ferramenta de link-in-bio para capturar visitas e direcionar conversões');
+  if (improvements.length === 0) improvements.push('Manter a consistência atual e testar novos formatos para ampliar o alcance');
+
+  // Sugestões estratégicas
+  const strategies = [
+    `Publicar ao menos ${Math.max(d.reels, 4)} Reels por mês para maximizar o alcance orgânico`,
+    'Usar o calendário editorial com temas definidos para garantir consistência e variedade de conteúdo',
+    'Responder todos os comentários nas primeiras horas após publicação — isso sinaliza engajamento ao algoritmo',
+    'Criar séries de conteúdo (ex: "Dica de Segunda", "Bastidores de Sexta") para fidelizar o público',
+    'Monitorar os horários de maior atividade do público e publicar nos picos de engajamento',
+  ];
+
+  // Análise comparativa (se houver dados anteriores)
+  let compSection = '';
+  if (hasPrev) {
+    const chgFollowers = pctChange(c.followerGrowth, c.p_followerGrowth);
+    const chgReach = pctChange(d.accountsReached, d.p_accountsReached);
+    const chgInteractions = pctChange(c.totalInteractions, c.p_totalInteractions);
+    compSection = `
+## Análise Comparativa: Mês Anterior × Mês Atual
+
+Em relação ao mês anterior, o perfil apresentou os seguintes movimentos:
+
+• Crescimento de seguidores: ${c.p_followerGrowth > 0 ? fmt(c.p_followerGrowth) : '0'} → ${fmt(c.followerGrowth)} ${chgFollowers !== null ? `(${chgFollowers > 0 ? '+' : ''}${chgFollowers.toFixed(1)}%)` : ''}
+• Alcance de contas: ${fmt(d.p_accountsReached)} → ${fmt(d.accountsReached)} ${chgReach !== null ? `(${chgReach > 0 ? '+' : ''}${chgReach.toFixed(1)}%)` : ''}
+• Total de interações: ${fmt(c.p_totalInteractions)} → ${fmt(c.totalInteractions)} ${chgInteractions !== null ? `(${chgInteractions > 0 ? '+' : ''}${chgInteractions.toFixed(1)}%)` : ''}
+
+${chgReach !== null && chgReach > 0 ? '📈 O alcance apresentou evolução positiva em relação ao período anterior.' : chgReach !== null ? '📉 O alcance recuou em relação ao período anterior, indicando necessidade de revisão na estratégia de conteúdo.' : ''}
+${chgInteractions !== null && chgInteractions > 0 ? '💬 As interações cresceram, sinalizando maior conexão com o público.' : chgInteractions !== null ? '💬 As interações reduziram — avaliar formatos e frequência de publicação.' : ''}
+`;
+  }
+
+  const report = `RELATÓRIO DE MÉTRICAS — INSTAGRAM
+${profile.toUpperCase()} | ${month.toUpperCase()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## Resumo Executivo
+
+Este relatório apresenta a análise completa das métricas do Instagram do perfil ${profile} referente ao mês de ${month}. Os dados foram extraídos diretamente do Instagram Insights e compilados para oferecer uma visão estratégica do desempenho da conta no período.
+
+O perfil encerrou o mês com ${fmt(d.followersEnd)} seguidores${c.followerGrowth !== 0 ? `, registrando ${c.followerGrowth > 0 ? 'crescimento' : 'redução'} de ${fmt(Math.abs(c.followerGrowth))} seguidores (${fmtPct(Math.abs(c.growthRate))})` : ''}. O alcance total atingiu ${fmt(d.accountsReached)} contas, com taxa de engajamento de ${fmtPct(c.engagementRate)} — classificada como ${engAnalysis}.
+
+## Crescimento do Perfil
+
+• Seguidores no início do mês: ${fmt(d.followersStart)}
+• Seguidores ao final do mês: ${fmt(d.followersEnd)}
+• Crescimento absoluto: ${c.followerGrowth >= 0 ? '+' : ''}${fmt(c.followerGrowth)} seguidores
+• Taxa de crescimento mensal: ${fmtPct(c.growthRate)}
+• Visitas ao perfil: ${fmt(d.profileVisits)}
+• Cliques no link da bio: ${fmt(d.bioClicks)} (${fmtPct(c.bioClickRate)} das visitas)
+
+${c.followerGrowth > 0 
+  ? `O perfil demonstrou crescimento orgânico consistente no período, refletindo a qualidade e relevância do conteúdo publicado. A taxa de ${fmtPct(c.growthRate)} está ${c.growthRate >= 2 ? 'acima da média mensal saudável para perfis da categoria' : 'dentro de uma faixa aceitável, com potencial para aceleração com estratégias direcionadas'}.`
+  : `O mês registrou estabilidade no número de seguidores. Este cenário é comum em períodos de sazonalidade ou mudanças no algoritmo, e reforça a necessidade de estratégias de crescimento ativo para o próximo ciclo.`}
+${compSection}
+## Desempenho de Conteúdo
+
+No período, foram publicados ${c.totalContent} conteúdos no total, distribuídos da seguinte forma:
+
+• Posts no feed: ${d.feedPosts}
+• Reels: ${d.reels}
+• Stories: ${d.stories}
+
+O alcance médio por conteúdo publicado foi de ${fmt(c.avgReachPerContent, 0)} contas, e a média de interações por publicação foi de ${fmt(c.avgInteractionsPerPost, 0)}.
+
+${d.reelsViews > 0 ? `Os Reels acumularam ${fmt(d.reelsViews)} visualizações totais${d.reels > 0 ? `, com média de ${fmt(d.reelsViews / d.reels, 0)} visualizações por Reel` : ''}, demonstrando o potencial do formato para ampliar o alcance orgânico do perfil.` : ''}
+
+## Engajamento
+
+• Total de interações: ${fmt(c.totalInteractions)}
+• Curtidas: ${fmt(d.likes)}
+• Comentários: ${fmt(d.comments)}
+• Compartilhamentos: ${fmt(d.shares)}
+• Salvamentos: ${fmt(d.saves)}
+• Taxa de engajamento (sobre seguidores): ${fmtPct(c.engagementRate)}
+• Taxa de engajamento sobre alcance: ${fmtPct(c.engagementReachRate)}
+
+O engajamento ${c.engagementRate >= 3 ? 'está em um nível positivo' : 'apresenta oportunidades de melhoria'}. ${d.saves > 0 ? `Os ${fmt(d.saves)} salvamentos são um indicador valioso: mostram que o público encontra valor no conteúdo e deseja revisitá-lo.` : ''} ${d.shares > 0 ? `Os ${fmt(d.shares)} compartilhamentos funcionam como amplificadores orgânicos, contribuindo para o crescimento da audiência.` : ''}
+
+## Destaques Positivos do Mês
+
+${positives.map(p => '✅ ' + p).join('\n')}
+
+## Pontos de Melhoria
+
+${improvements.map(i => '⚠️ ' + i).join('\n')}
+
+## Insights Estratégicos e Plano para o Próximo Mês
+
+Com base nos dados analisados, as principais recomendações estratégicas para ${month} são:
+
+${strategies.map((s, i) => `${i+1}. ${s}`).join('\n')}
+
+## Conclusão
+
+O perfil ${profile} demonstrou ${c.engagementRate >= 3 || c.followerGrowth > 0 ? 'desempenho positivo' : 'presença ativa'} em ${month}. ${c.engagementRate >= 3 ? 'A taxa de engajamento saudável indica uma audiência conectada e relevante, o que é mais valioso do que o mero volume de seguidores.' : 'Com ajustes na estratégia de conteúdo e consistência nas publicações, há forte potencial de melhora nos indicadores no próximo mês.'}
+
+A análise contínua dessas métricas é fundamental para orientar decisões criativas e estratégicas, garantindo crescimento sustentável e alinhado com os objetivos de negócio.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Relatório gerado via MetricsIG · ${new Date().toLocaleDateString('pt-BR')}`;
+
+  return report;
+}
+
+// =============================================
+//   RENDERIZA RELATÓRIO NO DOM
+// =============================================
+function renderReport(text) {
+  const el = document.getElementById('reportContent');
+  // Converter markdown simples em HTML
+  let html = text
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^━+$/gm, '<hr>')
+    .replace(/^✅ (.+)$/gm, '<li>✅ $1</li>')
+    .replace(/^⚠️ (.+)$/gm, '<li>⚠️ $1</li>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li><strong>$1.</strong> $2</li>')
+    .replace(/^• (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, match => `<ul>${match}</ul>`)
+    .split('\n').map(line => {
+      if (line.startsWith('<') || line.trim() === '') return line;
+      return `<p>${line}</p>`;
+    }).join('\n');
+
+  el.innerHTML = html;
+}
+
+// =============================================
+//   FUNÇÃO PRINCIPAL: GERAR RELATÓRIO
+// =============================================
+function generateReport() {
+  const d = collectData();
+
+  // Validação mínima
+  if (d.followersEnd === 0 && d.accountsReached === 0) {
+    showToast('⚠️ Preencha ao menos os dados básicos do perfil', 'error');
+    return;
+  }
+
+  // Loading
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('show');
+
+  setTimeout(() => {
+    try {
+      const c = calculate(d);
+
+      // Salvar no localStorage
+      saveToStorage(d);
+
+      // Renderizar métricas
+      renderMetrics(d, c);
+
+      // Comparativo
+      renderComparison(d, c);
+
+      // Gráficos
+      renderCharts(d, c);
+
+      // Relatório textual
+      const text = generateReportText(d, c);
+      renderReport(text);
+
+      // Mostrar resultados
+      const results = document.getElementById('resultsSection');
+      results.classList.add('visible');
+
+      overlay.classList.remove('show');
+
+      // Scroll suave até os resultados
+      setTimeout(() => {
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+
+      showToast('✅ Relatório gerado com sucesso!', 'success');
+    } catch (err) {
+      overlay.classList.remove('show');
+      showToast('❌ Erro ao gerar relatório. Verifique os dados.', 'error');
+      console.error(err);
+    }
+  }, 800);
+}
+
+// =============================================
+//   EXPORTAÇÕES
+// =============================================
+
+// Copiar relatório
+function copyReport() {
+  const content = document.getElementById('reportContent');
+  const text = content.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('📋 Relatório copiado para a área de transferência!', 'success');
+  }).catch(() => {
+    showToast('❌ Não foi possível copiar. Selecione e copie manualmente.', 'error');
+  });
+}
+
+// Exportar CSV
+function exportCSV() {
+  const d = collectData();
+  const c = calculate(d);
+  const month = monthName(d.refMonth);
+
+  const rows = [
+    ['Métrica', 'Valor'],
+    ['Perfil', d.profileName],
+    ['Mês', month],
+    ['Seguidores (início)', d.followersStart],
+    ['Seguidores (fim)', d.followersEnd],
+    ['Crescimento absoluto', c.followerGrowth],
+    ['Taxa de crescimento (%)', c.growthRate.toFixed(2)],
+    ['Contas alcançadas', d.accountsReached],
+    ['Contas engajadas', d.accountsEngaged],
+    ['Visitas ao perfil', d.profileVisits],
+    ['Cliques no link', d.bioClicks],
+    ['Posts no feed', d.feedPosts],
+    ['Reels', d.reels],
+    ['Stories', d.stories],
+    ['Curtidas', d.likes],
+    ['Comentários', d.comments],
+    ['Compartilhamentos', d.shares],
+    ['Salvamentos', d.saves],
+    ['Visualizações de Reels', d.reelsViews],
+    ['Total de interações', c.totalInteractions],
+    ['Taxa de engajamento (%)', c.engagementRate.toFixed(2)],
+    ['Média de interações/post', c.avgInteractionsPerPost.toFixed(1)],
+    ['Alcance médio/conteúdo', c.avgReachPerContent.toFixed(1)],
+  ];
+
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `metricas_instagram_${d.profileName.replace('@','')}_${d.refMonth || 'mes'}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📊 CSV exportado com sucesso!', 'success');
+}
+
+// Exportar PDF
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const d = collectData();
+  const c = calculate(d);
+  const month = monthName(d.refMonth);
+
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  const contentW = pageW - margin * 2;
+  let y = margin;
+
+  function checkPage(needed = 10) {
+    if (y + needed > pageH - margin) {
+      doc.addPage();
+      y = margin;
+    }
+  }
+
+  // Background escuro
+  doc.setFillColor(10, 10, 15);
+  doc.rect(0, 0, pageW, pageH, 'F');
+
+  // Header gradient simulado
+  doc.setFillColor(188, 24, 136);
+  doc.rect(0, 0, pageW, 2, 'F');
+
+  // Título
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(240, 240, 245);
+  doc.text('Relatório de Métricas', margin, y + 12);
+  y += 18;
+
+  doc.setFontSize(14);
+  doc.setTextColor(188, 24, 136);
+  doc.text(`Instagram · ${d.profileName} · ${month}`, margin, y);
+  y += 6;
+
+  doc.setDrawColor(50, 50, 70);
+  doc.line(margin, y, pageW - margin, y);
+  y += 10;
+
+  // Função auxiliar para seção
+  function addSection(title) {
+    checkPage(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(232, 83, 106);
+    doc.text(title, margin, y);
+    y += 7;
+    doc.setDrawColor(60, 40, 60);
+    doc.line(margin, y, pageW - margin, y);
+    y += 5;
+  }
+
+  function addRow(label, value, highlight = false) {
+    checkPage(8);
+    doc.setFont('helvetica', highlight ? 'bold' : 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(140, 140, 170);
+    doc.text(label, margin, y);
+    doc.setTextColor(highlight ? 240 : 220, highlight ? 180 : 200, highlight ? 51 : 220);
+    doc.text(String(value), pageW - margin, y, { align: 'right' });
+    y += 6;
+  }
+
+  function addText(text, color = [180, 180, 200]) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...color);
+    const lines = doc.splitTextToSize(text, contentW);
+    lines.forEach(line => {
+      checkPage(6);
+      doc.text(line, margin, y);
+      y += 6;
+    });
+    y += 2;
+  }
+
+  // Resumo executivo
+  addSection('RESUMO EXECUTIVO');
+  addText(`Perfil: ${d.profileName} | Mês: ${month} | Gerado em: ${new Date().toLocaleDateString('pt-BR')}`);
+
+  // Crescimento
+  addSection('CRESCIMENTO DO PERFIL');
+  addRow('Seguidores (início)', fmt(d.followersStart));
+  addRow('Seguidores (fim)', fmt(d.followersEnd));
+  addRow('Crescimento absoluto', (c.followerGrowth >= 0 ? '+' : '') + fmt(c.followerGrowth), true);
+  addRow('Taxa de crescimento', fmtPct(c.growthRate), true);
+  addRow('Visitas ao perfil', fmt(d.profileVisits));
+  addRow('Cliques no link da bio', fmt(d.bioClicks));
+  y += 2;
+
+  // Conteúdo
+  addSection('PRODUÇÃO DE CONTEÚDO');
+  addRow('Posts no feed', d.feedPosts);
+  addRow('Reels publicados', d.reels);
+  addRow('Stories publicados', d.stories);
+  addRow('Total de conteúdos', c.totalContent, true);
+  addRow('Visualizações de Reels', fmt(d.reelsViews));
+  y += 2;
+
+  // Engajamento
+  addSection('ENGAJAMENTO');
+  addRow('Alcance (contas)', fmt(d.accountsReached));
+  addRow('Contas engajadas', fmt(d.accountsEngaged));
+  addRow('Curtidas', fmt(d.likes));
+  addRow('Comentários', fmt(d.comments));
+  addRow('Compartilhamentos', fmt(d.shares));
+  addRow('Salvamentos', fmt(d.saves));
+  addRow('Total de interações', fmt(c.totalInteractions), true);
+  addRow('Taxa de engajamento', fmtPct(c.engagementRate), true);
+  addRow('Média interações/post', fmt(c.avgInteractionsPerPost, 1));
+  y += 2;
+
+  // Relatório textual (trecho)
+  addSection('ANÁLISE E INSIGHTS');
+  const text = document.getElementById('reportContent').innerText;
+  const truncated = text.substring(0, 2000);
+  addText(truncated, [160, 160, 190]);
+
+  // Footer
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFillColor(10, 10, 15);
+    doc.rect(0, pageH - 12, pageW, 12, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(80, 80, 100);
+    doc.text(`MetricsIG · ${d.profileName} · ${month} · Pág ${i}/${totalPages}`, pageW / 2, pageH - 4, { align: 'center' });
+  }
+
+  doc.save(`relatorio_instagram_${d.profileName.replace('@','')}_${d.refMonth || 'mes'}.pdf`);
+  showToast('⬇ PDF exportado com sucesso!', 'success');
+}
+
+// =============================================
+//   LOCALSTORAGE
+// =============================================
+const LS_KEY = 'metricsig_data';
+
+function saveToStorage(d) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) { showToast('ℹ️ Nenhum dado salvo encontrado.', 'error'); return; }
+    const d = JSON.parse(raw);
+
+    // Preencher campos
+    const fields = [
+      'profileName','followersStart','followersEnd','accountsReached','accountsEngaged',
+      'profileVisits','bioClicks','feedPosts','reels','stories','likes','comments',
+      'shares','saves','reelsViews','p_followersStart','p_followersEnd','p_accountsReached',
+      'p_accountsEngaged','p_likes','p_comments','p_shares','p_saves','p_reelsViews','p_profileVisits'
+    ];
+    fields.forEach(f => {
+      const el = document.getElementById(f);
+      if (el && d[f] !== undefined) el.value = d[f];
+    });
+
+    if (d.refMonth) document.getElementById('refMonth').value = d.refMonth;
+    showToast('✅ Dados carregados com sucesso!', 'success');
+  } catch(e) {
+    showToast('❌ Erro ao carregar dados salvos.', 'error');
+  }
+}
+
+function clearAll() {
+  if (!confirm('Limpar todos os dados? Esta ação não pode ser desfeita.')) return;
+  document.querySelectorAll('input[type="number"], input[type="text"]').forEach(el => el.value = '');
+  const today = new Date();
+  document.getElementById('refMonth').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('resultsSection').classList.remove('visible');
+  localStorage.removeItem(LS_KEY);
+  showToast('🗑 Dados limpos com sucesso.', 'success');
+}
+
+// =============================================
+//   UTILITÁRIO: TOAST
+// =============================================
+let toastTimer = null;
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const msgEl = document.getElementById('toastMsg');
+
+  icon.textContent = type === 'success' ? '✓' : '✗';
+  msgEl.textContent = msg;
+  toast.className = `toast ${type} show`;
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+// =============================================
+//   SCROLL TO FORM
+// =============================================
+function scrollToForm() {
+  document.getElementById('formSection').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
